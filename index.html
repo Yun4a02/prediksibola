@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TogelUp Pro - Secular One Edition (Fixed for WP)</title>
+    <!-- Import Google Font Secular One -->
+    <link href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap" rel="stylesheet">
+    <style>
+        :root { --toska: #00ead3; }
+        body { font-family: 'Secular One', sans-serif; background: #0c1117; color: #fff; padding: 20px; }
+        .admin-panel { max-width: 900px; margin: auto; background: #161b22; border: 2px solid var(--toska); border-radius: 12px; padding: 25px; box-shadow: 0 0 20px var(--toska); }
+        h2 { text-align: center; color: var(--toska); text-transform: uppercase; letter-spacing: 1px; font-size: 20px; }
+        .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        input, textarea { flex: 1; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; font-family: sans-serif; }
+        textarea { width: 100%; height: 180px; }
+        button { width: 100%; padding: 15px; background: var(--toska); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; font-family: 'Secular One', sans-serif; font-size: 16px; }
+        #output-area { margin-top: 30px; display: none; }
+        .code-res { width: 100%; height: 120px; background: #000; color: #0f0; font-size: 11px; margin-top: 10px; border: 1px dashed #555; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div class="admin-panel">
+    <h2>⚡ GENERATOR DASHBOARD PREDIKSI TOGELUP ⚡</h2>
+    <div class="input-row">
+        <input type="text" id="tglInp" placeholder="📅 Tanggal Prediksi (Contoh: 20 MEI 2024)">
+        <input type="text" id="runInp" placeholder="📣 Teks Berjalan">
+    </div>
+    <textarea id="matchInp" placeholder="Paste Prediksi Kamu Di Sini..."></textarea>
+    <button onclick="generateSecular()">🚀 GENERATE TAMPILAN 🚀</button>
+
+    <div id="output-area">
+        <textarea id="finalHtml" class="code-res" readonly></textarea>
+        <button style="background:#fff; color:#000;" onclick="copyCode()">📋 COPY KODE HTML</button>
+        <div id="live-preview-box" style="margin-top:30px; border-top:2px solid var(--toska); padding-top:20px;"></div>
+    </div>
+</div>
+
+<script>
+function generateSecular() {
+    const raw = document.getElementById('matchInp').value;
+    const tgl = document.getElementById('tglInp').value || "PREDIKSI BOLA TERJITU";
+    const run = document.getElementById('runInp').value || "SELAMAT DATANG DI TOGELUP - DAFTAR DAN MENANGKAN JACKPOT!";
+    const bgUrl = "https://cdn.areabermain.club/assets/cdn/az5/2026/06/05/20260605/d8da4a05d3711f1bdceaf9506db9358b/8d0c53b281558afb9d8b5b8ed05f1e5a.jpg";
+    const logoUrl = "https://cdn.areabermain.club/assets/cdn/az5/2026/05/29/20260529/891d078dfb7eafea9e076c4e6a0c8d44/togelup-togel-hijau-transparan-clean.png";
+
+    if(!raw) return alert("Isi data dulu!");
+
+    const lines = raw.split('\n');
+    let currentLeague = "";
+    let leagueGroups = {};
+    let leagues = [];
+
+    lines.forEach(line => {
+        let text = line.trim();
+        if(!text) return;
+        if(text.toLowerCase().includes("vs")) {
+            if(!leagueGroups[currentLeague]) leagueGroups[currentLeague] = [];
+            leagueGroups[currentLeague].push(text);
+        } else {
+            currentLeague = text;
+            if(!leagues.includes(text)) leagues.push(text);
+        }
+    });
+
+    let matchHtml = "";
+    let dropdownOptions = `<option value="all">TAMPILKAN SEMUA LIGA</option>`;
+
+    for (let league in leagueGroups) {
+        let cleanId = "lg-" + Math.random().toString(36).substr(2, 9);
+        dropdownOptions += `<option value="${cleanId}">${league}</option>`;
+
+        matchHtml += `<div class="TU_lg_block" data-id="${cleanId}">
+            <div class="TU_lg_title">🏆 ${league} 🏆</div>`;
+        
+        leagueGroups[league].forEach(m => {
+            const p = m.split(" ");
+            const vsIdx = p.findIndex(x => x.toLowerCase() === "vs");
+            const score = m.split(" ").slice(-3).join(" ");
+            const t1 = p.slice(3, vsIdx).join(" ");
+            const t2 = p.slice(vsIdx + 1, p.length - 3).join(" ");
+            const jam = p[0] + " " + p[1];
+            const logo1 = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(t1)}+logo+football&w=100&h=100&c=7`;
+            const logo2 = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(t2)}+logo+football&w=100&h=100&c=7`;
+
+            matchHtml += `
+            <div class="TU_match_row">
+                <div class="TU_team TU_l"><span class="TU_nm">${t1}</span><img src="${logo1}" class="TU_img"></div>
+                <div class="TU_sc"><div class="TU_pill">${score}</div><div class="TU_jam">${jam} WIB</div></div>
+                <div class="TU_team TU_r"><img src="${logo2}" class="TU_img"><span class="TU_nm">${t2}</span></div>
+            </div>`;
+        });
+        matchHtml += `</div>`;
+    }
+
+    const finalHtml = `
+<!-- IMPORT SECULAR ONE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap" rel="stylesheet">
+
+<div id="TU_WRAP" style="width: 100% !important; max-width: 100% !important; margin: 20px 0; border-radius: 15px; overflow: hidden; background: url('${bgUrl}') no-repeat center; background-size: cover; border: 3px solid #00ead3; box-shadow: 0 0 25px rgba(0, 234, 211, 0.5); position: relative; font-family: 'Secular One', sans-serif; color: #fff; box-sizing: border-box; display: block;">
+    <div style="background: rgba(0, 0, 0, 0.7); padding: 20px; min-height: 450px; box-sizing: border-box;">
+        <center><img src="${logoUrl}" style="width:250px; max-width: 85%; margin-bottom:20px; filter:drop-shadow(0 0 8px #00ead3);"></center>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 160px; background: rgba(0,0,0,0.8); border: 2px solid #00ead3; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; font-size: 16px; text-shadow: 1px 1px 2px #000;">📅 ${tgl}</div>
+            <select id="TU_SELECT" style="flex: 1; min-width: 160px; background: #000; border: 2px solid #00ead3; padding: 12px; border-radius: 10px; color: #00ead3; font-size: 15px; font-weight: bold; cursor: pointer; outline: none; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2300ead3%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 14px; font-family: 'Secular One', sans-serif;">
+                ${dropdownOptions}
+            </select>
+        </div>
+
+        <div style="background: rgba(0,234,211,0.15); border: 1px solid #00ead3; padding: 10px; border-radius: 8px; margin-bottom: 20px; overflow: hidden;">
+            <marquee scrollamount="6" style="color: #ffcc00; font-weight: bold; font-size: 14px; text-transform: uppercase; text-shadow: 1px 1px 2px #000;">📣 ${run}</marquee>
+        </div>
+
+        <div id="TU_MATCH_LIST" style="width:100%;">${matchHtml}</div>
+    </div>
+</div>
+
+<style>
+    #TU_WRAP *, #TU_WRAP *::before, #TU_WRAP *::after { box-sizing: border-box !important; }
+    .TU_lg_title { background: linear-gradient(90deg, transparent, rgba(0,234,211,0.4), transparent); border-top: 1px solid #00ead3; border-bottom: 1px solid #00ead3; padding: 12px; text-align: center; color: #00ead3; font-weight: bold; margin-top: 35px; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 2px 2px 4px #000; font-family: 'Secular One', sans-serif; }
+    
+    .TU_match_row { 
+        display: grid; 
+        grid-template-columns: 1fr 150px 1fr; 
+        align-items: center; 
+        padding: 18px 10px; 
+        background: rgba(0,0,0,0.7); 
+        margin-top: 12px; 
+        border-radius: 12px; 
+        border: 1px solid rgba(0,234,211,0.2); 
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .TU_match_row:hover {
+        background: rgba(0, 234, 211, 0.15);
+        border-color: #00ead3;
+        transform: scale(1.01);
+        z-index: 5;
+    }
+
+    .TU_team { display: flex; align-items: center; gap: 15px; }
+    .TU_l { justify-content: flex-end; text-align: right; }
+    .TU_r { justify-content: flex-start; text-align: left; }
+    .TU_img { width: 50px; height: 50px; object-fit: contain; filter: drop-shadow(0 0 5px #00ead3); background: rgba(255,255,255,0.05); border-radius: 50%; padding: 4px; border: 1px solid #00ead3; }
+    .TU_nm { font-size: 16px; font-weight: bold; color: #fff; text-transform: uppercase; text-shadow: 1px 1px 3px #000; font-family: 'Secular One', sans-serif; }
+    .TU_sc { text-align: center; }
+    .TU_pill { background: linear-gradient(180deg, #00ead3, #009688); color: #000; padding: 6px 15px; border-radius: 8px; font-weight: 900; font-size: 24px; box-shadow: 0 0 12px #00ead3; display: inline-block; min-width: 75px; font-family: 'Secular One', sans-serif; }
+    .TU_jam { font-size: 13px; color: #00ead3; margin-top: 6px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
+    
+    @media (max-width: 650px) { 
+        .TU_match_row { grid-template-columns: 1fr 100px 1fr; padding: 12px 5px; } 
+        .TU_nm { font-size: 12px; } 
+        .TU_pill { font-size: 17px; min-width: 55px; padding: 5px; } 
+        .TU_img { width: 32px; height: 32px; gap: 8px; }
+        .TU_lg_title { font-size: 16px; }
+        .TU_team { gap: 8px; }
+    }
+</style>
+
+<script>
+(function() {
+    var sel = document.getElementById('TU_SELECT');
+    if(sel) {
+        sel.addEventListener('change', function() {
+            var val = this.value;
+            var blocks = document.querySelectorAll('.TU_lg_block');
+            blocks.forEach(function(b) {
+                if(val === 'all') { b.style.display = 'block'; }
+                else { b.style.display = (b.getAttribute('data-id') === val) ? 'block' : 'none'; }
+            });
+        });
+    }
+})();
+<\/script>
+`;
+    document.getElementById('finalHtml').value = finalHtml;
+    document.getElementById('live-preview-box').innerHTML = finalHtml;
+    
+    var script = document.createElement('script');
+    script.innerHTML = "(function(){var sel=document.getElementById('TU_SELECT');if(sel){sel.addEventListener('change',function(){var val=this.value;var blocks=document.querySelectorAll('.TU_lg_block');blocks.forEach(function(b){if(val==='all'){b.style.display='block'}else{b.style.display=(b.getAttribute('data-id')===val)?'block':'none'}})})}})()";
+    document.getElementById('live-preview-box').appendChild(script);
+    
+    document.getElementById('output-area').style.display = 'block';
+}
+
+function copyCode() {
+    const c = document.getElementById('finalHtml');
+    c.select();
+    document.execCommand('copy');
+    alert("Kode DISALIN! Versi WP-Optimized Siap.");
+}
+</script>
+
+</body>
+</html>
