@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TogelUp World Cup Generator Pro Final V2</title>
+  <title>TogelUp World Cup Generator Pro Final V4</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Secular+One&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -201,7 +201,7 @@
         <small>Generator Final V2</small>
         <h1>⚽ Dashboard Prediksi Bola</h1>
       </div>
-      <div class="topbadge">WordPress Safe • Live WIB Clock • Neon UI</div>
+      <div class="topbadge">WordPress Team Fix • Live WIB Clock • Neon UI</div>
     </header>
 
     <section class="body">
@@ -257,6 +257,7 @@ function tuEsc(v){return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt
 function tuAttr(v){return tuEsc(v).replace(/`/g,'&#96;')}
 function tuInitial(name){const w=String(name||'').trim().split(/\s+/).filter(Boolean);if(!w.length)return 'FC';if(w.length===1)return w[0].slice(0,2).toUpperCase();return (w[0][0]+w[w.length-1][0]).toUpperCase()}
 function tuLogo(team){return 'https://tse2.mm.bing.net/th?q='+encodeURIComponent(team+' football logo')+'&w=120&h=120&c=7'}
+function cleanTeamName(name){return String(name||'').replace(/\bWIB\b/ig,' ').replace(/\[(?:\d+|[^\]]{1,8})\]/g,' ').replace(/\(\s*\d+\s*\)/g,' ').replace(/\s+/g,' ').trim()}
 function parseMatchLine(line){
   const s=String(line||'').trim();
   const sm=s.match(/(\d+)\s*[:\-]\s*(\d+)\s*$/);
@@ -266,10 +267,12 @@ function parseMatchLine(line){
   const parts=before.split(/\s+vs\s+/i);
   if(parts.length<2)return null;
   let left=parts[0].trim();
-  const away=parts.slice(1).join(' vs ').trim();
+  let away=parts.slice(1).join(' vs ').trim();
   let date='',time='',home=left;
-  const dm=left.match(/^(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s+(\d{1,2}:\d{2})\s+(.+)$/);
+  const dm=left.match(/^(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s+(\d{1,2}:\d{2})(?:\s*WIB)?\s+(.+)$/i);
   if(dm){date=dm[1];time=dm[2];home=dm[3].trim();}
+  home=cleanTeamName(home);
+  away=cleanTeamName(away);
   return {date,time,home,away,score,raw:s};
 }
 function parseGroups(raw){
@@ -318,9 +321,9 @@ function buildGeneratedHTML(groups,cfg){
 #${uid},#${uid} *{box-sizing:border-box;font-style:normal!important;font-synthesis-style:none!important}
 #${uid}:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0,rgba(0,234,211,.20),transparent 30%),radial-gradient(circle at 88% 10%,rgba(255,215,106,.15),transparent 26%),linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:auto,auto,38px 38px,38px 38px;pointer-events:none}
 #${uid} .tu-inner{position:relative;padding:24px;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.50))}
-#${uid} .tu-top{text-align:center;padding:10px 0 16px}
-#${uid} .tu-main-logo{width:240px;max-width:82%;filter:drop-shadow(0 0 12px #00ead3);margin-bottom:12px}
-#${uid} .tu-title{display:inline-flex;align-items:center;justify-content:center;gap:10px;max-width:100%;padding:12px 20px;border:1px solid rgba(0,234,211,.55);border-radius:999px;background:linear-gradient(90deg,rgba(0,234,211,.18),rgba(255,215,106,.10));font-family:'Secular One',sans-serif;color:#00ead3;text-shadow:0 0 14px rgba(0,234,211,.7);font-size:clamp(18px,3vw,28px);text-transform:uppercase;letter-spacing:.7px;text-align:center;line-height:1.25}
+#${uid} .tu-top{width:100%;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;padding:10px 0 16px;margin:0 auto!important}
+#${uid} .tu-main-logo{display:block!important;float:none!important;clear:both!important;width:240px;max-width:82%;filter:drop-shadow(0 0 12px #00ead3);margin:0 auto 12px auto!important;text-align:center!important;position:relative;left:auto!important;right:auto!important}
+#${uid} .tu-title{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px;max-width:min(100%,780px);width:fit-content;margin:0 auto!important;padding:12px 20px;border:1px solid rgba(0,234,211,.55);border-radius:999px;background:linear-gradient(90deg,rgba(0,234,211,.18),rgba(255,215,106,.10));font-family:'Secular One',sans-serif;color:#00ead3;text-shadow:0 0 14px rgba(0,234,211,.7);font-size:clamp(18px,3vw,28px);text-transform:uppercase;letter-spacing:.7px;text-align:center!important;line-height:1.25;float:none!important;position:relative;left:auto!important;right:auto!important}
 #${uid} .tu-controls{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;margin:18px 0}
 #${uid} .tu-info,#${uid} .tu-select{border:1px solid rgba(0,234,211,.42);border-radius:15px;background:rgba(0,0,0,.62);color:#fff;padding:13px 14px;text-align:center;font-weight:800;text-transform:uppercase;box-shadow:inset 0 0 16px rgba(0,234,211,.06);min-height:54px;display:flex;align-items:center;justify-content:center}
 #${uid} .tu-select{color:#00ead3;outline:none;cursor:pointer;font-family:'Rajdhani',Arial,sans-serif;font-size:15px}
@@ -336,11 +339,11 @@ function buildGeneratedHTML(groups,cfg){
 #${uid} .tu-match{display:grid;grid-template-columns:minmax(0,1fr) 170px minmax(0,1fr);align-items:center;gap:14px;margin:13px 0;padding:16px;border:1px solid rgba(0,234,211,.24);border-radius:20px;background:linear-gradient(135deg,rgba(0,0,0,.74),rgba(0,234,211,.07));box-shadow:0 10px 22px rgba(0,0,0,.28);transition:.25s;animation:tuPop .45s ease both;animation-delay:var(--delay)}
 #${uid} .tu-match:hover{transform:translateY(-2px);border-color:#00ead3;box-shadow:0 0 24px rgba(0,234,211,.22)}
 @keyframes tuPop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-#${uid} .tu-team{display:flex;align-items:center;gap:13px;min-width:0}
-#${uid} .tu-left{justify-content:flex-end;text-align:right}
-#${uid} .tu-right{justify-content:flex-start;text-align:left}
-#${uid} .tu-name{font-family:'Secular One',sans-serif;font-size:clamp(14px,2.2vw,20px);text-transform:uppercase;text-shadow:0 2px 4px #000;line-height:1.1;overflow-wrap:anywhere}
-#${uid} .tu-logo{width:58px;height:58px;min-width:58px;border-radius:50%;border:2px solid #00ead3;background:radial-gradient(circle,#fff,rgba(255,255,255,.78));display:grid;place-items:center;position:relative;box-shadow:0 0 16px rgba(0,234,211,.65);overflow:hidden}
+#${uid} .tu-team{display:flex;align-items:center;justify-content:center;gap:13px;min-width:0}
+#${uid} .tu-left{justify-content:center;text-align:center}
+#${uid} .tu-right{justify-content:center;text-align:center}
+#${uid} .tu-name{display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Secular One',sans-serif;font-size:clamp(14px,2.2vw,20px);text-transform:uppercase;text-shadow:0 2px 4px #000;line-height:1.1;overflow-wrap:anywhere;max-width:100%}
+#${uid} .tu-logo{width:58px;height:58px;min-width:58px;border-radius:50%;border:2px solid #00ead3;background:radial-gradient(circle,#fff,rgba(255,255,255,.78));display:grid;place-items:center;position:relative;box-shadow:0 0 16px rgba(0,234,211,.65);overflow:hidden;transform:translateX(5px)}
 #${uid} .tu-logo span{font-family:'Secular One',sans-serif;color:#021815;font-size:15px;z-index:0}
 #${uid} .tu-logo img{position:absolute;inset:5px;width:calc(100% - 10px);height:calc(100% - 10px);object-fit:contain;border-radius:50%;z-index:1}
 #${uid} .tu-mid{text-align:center;border-radius:18px;padding:10px 8px;background:linear-gradient(180deg,#00ead3,#058d84);color:#00110f;box-shadow:0 0 18px rgba(0,234,211,.62)}
@@ -423,7 +426,7 @@ function downloadCodeTU(){
   const blob=new Blob([TU_LAST_GENERATED],{type:'text/html'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='hasil-generate-worldcup-keren-v2.html';
+  a.download='hasil-generate-worldcup-keren-v4.html';
   document.body.appendChild(a);
   a.click();
   a.remove();
